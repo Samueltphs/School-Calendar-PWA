@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>View Events</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="app.js"></script>
+</head>
+<body>
+  <h1>View Events</h1>
+
+  <p id="date-label"></p>
+  <div id="event-list"></div>
+
+  <br>
+  <button onclick="history.back()">Done</button>
+
+  <script>
+    const params = new URLSearchParams(location.search);
+    const id = params.get("id");
+    const date = params.get("date");
+
+    const role = localStorage.getItem("currentRole") || "student";
+    const username = localStorage.getItem("currentUser") || "unknown";
+
+    let events = [];
+
+    if (id) {
+      const event = loadEventById(role, username, id);
+      if (event) {
+        events = [event];
+        document.getElementById("date-label").textContent = `Event: ${event.name}`;
+      } else {
+        document.getElementById("date-label").textContent = "Event not found";
+      }
+    } else if (date) {
+      document.getElementById("date-label").textContent = "Events on " + date;
+      events = getEventsForUser(role, username).filter(e => e.date === date);
+    }
+
+    if (events.length === 0) {
+      document.getElementById("event-list").innerHTML = "<p>No events found.</p>";
+    } else {
+      document.getElementById("event-list").innerHTML = events.map(e => `
+        <div style="border:1px solid #ccc; padding:8px; margin-bottom:6px;">
+          <h3>${e.name}</h3>
+          <p><strong>Category:</strong> ${e.category}</p>
+          <p>${e.description}</p>
+        </div>
+      `).join("");
+    }
+  </script>
+</body>
+</html>

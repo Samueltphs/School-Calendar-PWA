@@ -1,0 +1,40 @@
+    #calendar table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+
+  #calendar th {
+    background: #f0f0f0;
+    padding: 10px;
+    font-size: 18px;
+  }
+
+  #calendar td {
+    height: 80px;            /* ← SMALLER CELLS */
+    vertical-align: top;
+    padding: 6px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+    position: relative;
+  }
+
+  .event-dot {
+    display: block;
+    background: #ff9800;
+    color: white;
+    padding: 2px 4px;
+    margin-top: 4px;
+    border-radius: 4px;
+    font-size: 12px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    cursor: pointer;
+  }
+
+button {
+  padding: 12px 24px;
+  font-size: 18px;
+  margin-bottom: 10px;
+}

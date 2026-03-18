@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Staff Page</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="app.js"></script>
+</head>
+<body>
+  <h1>Staff Page</h1>
+
+  <div style="display:flex; justify-content:space-between; width:320px; align-items:center;">
+    <button id="prev-month">◀</button>
+    <h2 id="month-label" style="margin:0;"></h2>
+    <button id="next-month">▶</button>
+  </div>
+
+  <div style="display: flex; align-items: flex-start; margin-top:10px;">
+    <div id="calendar" style="flex: 3;"></div>
+    <div id="event-details" style="flex: 2; padding: 10px; border-left: 1px solid #ccc;"></div>
+    <div style="flex: 1; display: flex; flex-direction: column; align-items: center; padding-left: 20px;">
+      <button onclick="location.href='edit-event-staff.html'">Create Event</button>
+      <button onclick="location.href='index.html'">Logout</button>
+    </div>
+  </div>
+
+  <script>
+    const role = "staff";
+    const username = localStorage.getItem("currentUser") || "staff";
+    setupCalendar(role, username);
+  </script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Edit Event (Staff)</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="app.js"></script>
+</head>
+<body>
+  <h1>Edit Event (Staff)</h1>
+
+  <label>Name: <input id="name"></label><br><br>
+  <label>Category: <input id="category"></label><br><br>
+  <label>Description:<br>
+    <textarea id="description" rows="4" cols="30"></textarea>
+  </label><br><br>
+  <label>Date: <input id="date" type="date"></label><br><br>
+
+  <button id="save-btn">Done</button>
+  <button onclick="location.href='staff.html'">Cancel</button>
+
+  <script>
+    const role = "staff";
+    const username = localStorage.getItem("currentUser") || "staff";
+    const params = new URLSearchParams(location.search);
+    const id = params.get("id");
+
+    const nameInput = document.getElementById("name");
+    const categoryInput = document.getElementById("category");
+    const descriptionInput = document.getElementById("description");
+    const dateInput = document.getElementById("date");
+
+    if (id) {
+      const event = loadEventById(role, username, id);
+      if (event) {
+        nameInput.value = event.name;
+        categoryInput.value = event.category;
+        descriptionInput.value = event.description;
+        dateInput.value = event.date;
+      }
+    }
+
+    document.getElementById("save-btn").onclick = () => {
+      const event = {
+        id: id || String(Date.now()),
+        name: nameInput.value,
+        category: categoryInput.value,
+        description: descriptionInput.value,
+        date: dateInput.value,
+        scope: "global"
+      };
+      saveEvent(role, username, event, id);
+      location.href = "staff.html";
+    };
+  </script>
+</body>
+</html>

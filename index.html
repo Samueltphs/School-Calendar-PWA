@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>School Events - Login</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>School Events</h1>
+  <h2>Login</h2>
+
+  <label>
+    Role:
+    <select id="role">
+      <option value="staff">Staff</option>
+      <option value="student">Student</option>
+    </select>
+  </label>
+  <br><br>
+  <label>
+    Username:
+    <input id="username" type="text">
+  </label>
+  <br><br>
+  <button id="login-btn">Login</button>
+
+  <script>
+    document.getElementById("login-btn").onclick = () => {
+      const role = document.getElementById("role").value;
+      const username = document.getElementById("username").value.trim();
+
+      if (!username) {
+        alert("Please enter a username.");
+        return;
+      }
+
+      localStorage.setItem("currentRole", role);
+      localStorage.setItem("currentUser", username);
+
+      if (role === "staff") {
+        location.href = "staff.html";
+      } else {
+        location.href = "student.html";
+      }
+    };
+  </script>
+</body>
+</html>
