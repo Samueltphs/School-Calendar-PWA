@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Add User - Admin</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="app.js"></script>
+</head>
+<body>
+  <h1>Add New User</h1>
+
+  <label>
+    Role:
+    <select id="role">
+      <option value="staff">Staff</option>
+      <option value="student">Student</option>
+    </select>
+  </label>
+  <br><br>
+  <label>
+    First Name:
+    <input id="firstName" type="text" maxlength="10">
+  </label>
+  <br><br>
+  <label>
+    Last Name:
+    <input id="lastName" type="text" maxlength="10">
+  </label>
+  <br><br>
+  <label>
+    Password:
+    <input id="password" type="password">
+    <button type="button" id="toggle-password">Show Password</button>
+  </label>
+  <br><br>
+  <label>
+    Confirm Password:
+    <input id="confirm-password" type="password">
+    <button type="button" id="toggle-confirm-password">Show Password</button>
+  </label>
+  <br><br>
+  <p id="password-error" style="color: red;"></p>
+  <p id="generated-email"></p>
+  <br>
+  <button id="add-btn">Add User</button>
+  <button onclick="location.href='index.html'">Cancel</button>
+
+  <script>
+    const firstNameInput = document.getElementById("firstName");
+    const lastNameInput = document.getElementById("lastName");
+    const roleInput = document.getElementById("role");
+    const passwordInput = document.getElementById("password");
+    const confirmPasswordInput = document.getElementById("confirm-password");
+    const generatedEmail = document.getElementById("generated-email");
+    const passwordError = document.getElementById("password-error");
+    const togglePasswordBtn = document.getElementById("toggle-password");
+    const toggleConfirmPasswordBtn = document.getElementById("toggle-confirm-password");
+
+    function updateEmail() {
+      const firstName = firstNameInput.value.trim().toLowerCase();
+      const lastName = lastNameInput.value.trim().toLowerCase();
+      if (firstName && lastName) {
+        const email = `${firstName}.${lastName}@school.example.com`;
+        generatedEmail.textContent = "Username: " + email;
+      } else {
+        generatedEmail.textContent = "";
+      }
+    }
+
+    function validateAndUpdatePassword() {
+      const error = validatePassword(passwordInput.value);
+      if (error) {
+        passwordError.textContent = error;
+      } else {
+        passwordError.textContent = "";
+      }
+    }
+
+    togglePasswordBtn.onclick = (e) => {
+      e.preventDefault();
+      const isPassword = passwordInput.type === "password";
+      passwordInput.type = isPassword ? "text" : "password";
+      togglePasswordBtn.textContent = isPassword ? "Hide Password" : "Show Password";
+    };
+
+    toggleConfirmPasswordBtn.onclick = (e) => {
+      e.preventDefault();
+      const isPassword = confirmPasswordInput.type === "password";
+      confirmPasswordInput.type = isPassword ? "text" : "password";
+      toggleConfirmPasswordBtn.textContent = isPassword ? "Hide Password" : "Show Password";
+    };
+
+    firstNameInput.oninput = updateEmail;
+    lastNameInput.oninput = updateEmail;
+    passwordInput.oninput = validateAndUpdatePassword;
+
+    document.getElementById("add-btn").onclick = () => {
+      const firstName = firstNameInput.value.trim();
+      const lastName = lastNameInput.value.trim();
+      const password = passwordInput.value.trim();
+      const confirmPassword = confirmPasswordInput.value.trim();
+      const role = roleInput.value;
+
+      if (!firstName || !lastName || !password || !confirmPassword) {
+        alert("Please fill in all fields.");
+        return;
+      }
+
+      if (firstName.length > 10 || lastName.length > 10) {
+        alert("First and last name must be 10 characters or fewer.");
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        alert("Passwords do not match.");
+        return;
+      }
+
+      const error = validatePassword(password);
+      if (error) {
+        alert(error);
+        return;
+      }
+
+      const username = `${firstName.toLowerCase()}.${lastName.toLowerCase()}@school.example.com`;
+      addUser(username, password, firstName, lastName, role);
+      alert(`User ${username} added successfully!`);
+      location.href = "index.html";
+    };
+  </script>
+</body>
+</html>

@@ -1,6 +1,94 @@
+function validatePassword(password) {
+  if (password.length < 8 || password.length > 64) {
+    return "Password must be between 8 and 64 characters.";
+  }
+  if (!/[A-Z]/.test(password)) {
+    return "Password must contain at least 1 capital letter.";
+  }
+  if (!/[a-z]/.test(password)) {
+    return "Password must contain at least 1 lowercase letter.";
+  }
+  if (!/[0-9]/.test(password)) {
+    return "Password must contain at least 1 number.";
+  }
+  if (!/[!@#$%^&*()\-_=+\[\]{};:'",.<>?/\\|`~]/.test(password)) {
+    return "Password must contain at least 1 special character.";
+  }
+  return null;
+}
+
+const categoryColors = {
+  Homework: '#4caf50',
+  Exam: '#f44336',
+  Club: '#2196f3',
+  Sports: '#ff9800',
+  Other: '#9c27b0'
+};
+
+function getCategoryColor(category) {
+  return categoryColors[category] || '#607d8b';
+}
+
+function getNotificationKey(username, eventId) {
+  return `${username}|${eventId}`;
+}
+
+function setNotificationPreference(username, eventId, enabled) {
+  let store = JSON.parse(localStorage.getItem('notifications') || '{}');
+  store[getNotificationKey(username, eventId)] = enabled;
+  localStorage.setItem('notifications', JSON.stringify(store));
+}
+
+function getNotificationPreference(username, eventId) {
+  let store = JSON.parse(localStorage.getItem('notifications') || '{}');
+  return !!store[getNotificationKey(username, eventId)];
+}
+
+function initializeDefaultAdmin() {
+  let users = JSON.parse(localStorage.getItem('users') || '[]');
+  if (!users.find(u => u.username === 'admin@school.example.com')) {
+    const adminUser = {
+      username: 'admin@school.example.com',
+      password: 'admin123',
+      firstName: 'Admin',
+      lastName: 'User',
+      role: 'admin'
+    };
+    users.push(adminUser);
+    localStorage.setItem('users', JSON.stringify(users));
+  }
+}
+
+initializeDefaultAdmin();
+
+function addUser(username, password, firstName, lastName, role) {
+  let users = JSON.parse(localStorage.getItem('users') || '[]');
+  const newUser = {
+    username: username,
+    password: password,
+    firstName: firstName,
+    lastName: lastName,
+    role: role
+  };
+  users.push(newUser);
+  localStorage.setItem('users', JSON.stringify(users));
+}
+
+function authenticateUser(email, password) {
+  let users = JSON.parse(localStorage.getItem('users') || '[]');
+  const user = users.find(u => u.username === email && u.password === password);
+  return user || null;
+}
+
+function getAllEvents() {
+  return JSON.parse(localStorage.getItem('events') || '[]');
+}
+
 function getEventsForUser(role, username) {
   let events = JSON.parse(localStorage.getItem('events') || '[]');
-  if (role === 'staff') {
+  if (role === 'admin') {
+    return events;
+  } else if (role === 'staff') {
     return events.filter(e => e.scope === 'global');
   } else {
     return events.filter(e => e.scope === 'global' || (e.scope === 'student' && e.username === username));
@@ -15,6 +103,8 @@ function saveEvent(role, username, event, id) {
       events[index] = event;
     }
   } else {
+    event.createdBy = username;
+    event.createdByRole = role;
     events.push(event);
   }
   localStorage.setItem('events', JSON.stringify(events));
@@ -38,13 +128,26 @@ function selectEvent(id, role, username) {
     buttons += `<br><button onclick="deleteEvent('${event.id}', '${role}', '${username}')">Delete Event</button>`;
   }
 
+  const notifyKey = getNotificationKey(username, event.id);
+  const notifyEnabled = getNotificationPreference(username, event.id);
+
   detailsDiv.innerHTML = `
     <h3>${event.name || 'Unnamed Event'}</h3>
     <p><strong>Category:</strong> ${event.category || ''}</p>
     <p>${event.description || ''}</p>
-    <p><strong>Date:</strong> ${event.date}</p>
+    <p><strong>Date:</strong> ${event.date}${event.time ? ' ' + event.time : ''}</p>
+    <label>
+      <input type="checkbox" id="notify-checkbox" ${notifyEnabled ? 'checked' : ''}>
+      Notify me about this event
+    </label>
+    <br><br>
     ${buttons}
   `;
+
+  const checkbox = document.getElementById('notify-checkbox');
+  if (checkbox) {
+    checkbox.onchange = () => setNotificationPreference(username, event.id, checkbox.checked);
+  }
 }
 
 function deleteEvent(id, role, username) {
@@ -104,7 +207,9 @@ function setupCalendar(role, username) {
       const dateStr = `${year}-${String(month+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
 
       let eventsForDay = getEventsForUser(role, username).filter(e => e.date === dateStr);
-      let eventHtml = eventsForDay.map(e => `<div class="event-dot" onclick="selectEvent('${e.id}', '${role}', '${username}')">${e.name || 'Unnamed'}</div>`).join('');
+      let eventHtml = eventsForDay.map(e => `
+        <div class="event-dot" style="background: ${getCategoryColor(e.category)};" title="${(e.time ? e.time + ' - ' : '') + (e.name || 'Unnamed') }" onclick="selectEvent('${e.id}', '${role}', '${username}')">${e.name || 'Unnamed'}</div>
+      `).join('');
 
       html += `
         <td>

@@ -5,40 +5,58 @@
   <title>School Events - Login</title>
   <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="style.css">
+  <script src="app.js"></script>
 </head>
 <body>
   <h1>School Events</h1>
   <h2>Login</h2>
 
   <label>
-    Role:
-    <select id="role">
-      <option value="staff">Staff</option>
-      <option value="student">Student</option>
-    </select>
+    Email:
+    <input id="email" type="text">
   </label>
   <br><br>
   <label>
-    Username:
-    <input id="username" type="text">
+    Password:
+    <input id="password" type="password">
+    <button type="button" id="toggle-password">Show Password</button>
   </label>
   <br><br>
   <button id="login-btn">Login</button>
+  <br><br>
+  <a href="add-user.html">Add New User (Admin)</a>
 
   <script>
-    document.getElementById("login-btn").onclick = () => {
-      const role = document.getElementById("role").value;
-      const username = document.getElementById("username").value.trim();
+    document.getElementById("toggle-password").onclick = (e) => {
+      e.preventDefault();
+      const passwordInput = document.getElementById("password");
+      const button = document.getElementById("toggle-password");
+      const isPassword = passwordInput.type === "password";
+      passwordInput.type = isPassword ? "text" : "password";
+      button.textContent = isPassword ? "Hide Password" : "Show Password";
+    };
 
-      if (!username) {
-        alert("Please enter a username.");
+    document.getElementById("login-btn").onclick = () => {
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+
+      if (!email || !password) {
+        alert("Please enter email and password.");
         return;
       }
 
-      localStorage.setItem("currentRole", role);
-      localStorage.setItem("currentUser", username);
+      const user = authenticateUser(email, password);
+      if (!user) {
+        alert("Invalid email or password.");
+        return;
+      }
 
-      if (role === "staff") {
+      localStorage.setItem("currentRole", user.role);
+      localStorage.setItem("currentUser", user.username);
+
+      if (user.role === "admin") {
+        location.href = "admin.html";
+      } else if (user.role === "staff") {
         location.href = "staff.html";
       } else {
         location.href = "student.html";

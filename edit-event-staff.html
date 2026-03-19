@@ -9,18 +9,27 @@
 <body>
   <h1>Edit Event (Staff)</h1>
 
-  <label>Name: <input id="name"></label><br><br>
-  <label>Category: <input id="category"></label><br><br>
+  <label>Name: <input id="name" maxlength="25"></label><br><br>
+  <label>Category:
+    <select id="category">
+      <option value="Homework">Homework</option>
+      <option value="Exam">Exam</option>
+      <option value="Club">Club</option>
+      <option value="Sports">Sports</option>
+      <option value="Other">Other</option>
+    </select>
+  </label><br><br>
   <label>Description:<br>
-    <textarea id="description" rows="4" cols="30"></textarea>
+    <textarea id="description" rows="4" cols="30" maxlength="50"></textarea>
   </label><br><br>
   <label>Date: <input id="date" type="date"></label><br><br>
+  <label>Time: <input id="time" type="time"></label><br><br>
 
   <button id="save-btn">Done</button>
   <button onclick="location.href='staff.html'">Cancel</button>
 
   <script>
-    const role = "staff";
+    const role = localStorage.getItem("currentRole") || "staff";
     const username = localStorage.getItem("currentUser") || "staff";
     const params = new URLSearchParams(location.search);
     const id = params.get("id");
@@ -29,6 +38,7 @@
     const categoryInput = document.getElementById("category");
     const descriptionInput = document.getElementById("description");
     const dateInput = document.getElementById("date");
+    const timeInput = document.getElementById("time");
 
     if (id) {
       const event = loadEventById(role, username, id);
@@ -37,20 +47,39 @@
         categoryInput.value = event.category;
         descriptionInput.value = event.description;
         dateInput.value = event.date;
+        timeInput.value = event.time || "";
       }
     }
 
     document.getElementById("save-btn").onclick = () => {
+      if (!nameInput.value.trim()) {
+        alert("Event name is required.");
+        return;
+      }
+      if (nameInput.value.trim().length > 25) {
+        alert("Event name must be 25 characters or fewer.");
+        return;
+      }
+      if (descriptionInput.value.trim().length > 50) {
+        alert("Description must be 50 characters or fewer.");
+        return;
+      }
+
       const event = {
         id: id || String(Date.now()),
-        name: nameInput.value,
+        name: nameInput.value.trim(),
         category: categoryInput.value,
-        description: descriptionInput.value,
+        description: descriptionInput.value.trim(),
         date: dateInput.value,
+        time: timeInput.value,
         scope: "global"
       };
       saveEvent(role, username, event, id);
-      location.href = "staff.html";
+      if (role === "admin") {
+        location.href = "admin.html";
+      } else {
+        location.href = "staff.html";
+      }
     };
   </script>
 </body>

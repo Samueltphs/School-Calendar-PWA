@@ -41,13 +41,26 @@
     if (events.length === 0) {
       document.getElementById("event-list").innerHTML = "<p>No events found.</p>";
     } else {
-      document.getElementById("event-list").innerHTML = events.map(e => `
-        <div style="border:1px solid #ccc; padding:8px; margin-bottom:6px;">
-          <h3>${e.name}</h3>
-          <p><strong>Category:</strong> ${e.category}</p>
-          <p>${e.description}</p>
-        </div>
-      `).join("");
+      document.getElementById("event-list").innerHTML = events.map(e => {
+        const notifyKey = `${username}|${e.id}`;
+        const notifyEnabled = getNotificationPreference(username, e.id);
+        return `
+          <div style="border:1px solid #ccc; padding:8px; margin-bottom:6px;">
+            <h3>${e.name}</h3>
+            <p><strong>Category:</strong> ${e.category}</p>
+            <p>${e.description}</p>
+            <p><strong>Date:</strong> ${e.date}${e.time ? ' ' + e.time : ''}</p>
+            <label><input type="checkbox" class="notify-checkbox" data-event-id="${e.id}" ${notifyEnabled ? 'checked' : ''}> Notify me about this event</label>
+          </div>
+        `;
+      }).join("");
+
+      document.querySelectorAll('.notify-checkbox').forEach(cb => {
+        cb.onchange = () => {
+          const eventId = cb.getAttribute('data-event-id');
+          setNotificationPreference(username, eventId, cb.checked);
+        };
+      });
     }
   </script>
 </body>
